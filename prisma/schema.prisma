@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pengeluaran {
+  id         Int      @id @default(autoincrement())
+  namaBarang String
+  harga      Float
+  jumlah     Int
+  tanggal    String
+  kategori   String
+  isDeleted  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([tanggal, isDeleted])
+  @@map("pengeluaran")
+}
+
+model KeranjangBelanja {
+  id              Int      @id @default(autoincrement())
+  namaProduk      String
+  perkiraanHarga  Float
+  ukuranIsi       Float
+  isChecked       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("keranjang_belanja")
+}
