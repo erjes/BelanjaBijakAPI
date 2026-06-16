@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeUser } from "@/lib/auth";
 import { registerSchema } from "@/lib/user-schemas";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -44,6 +46,8 @@ export async function POST(request: Request) {
     if (isUniqueConstraintError(error)) {
       return badRequest("Email sudah terdaftar");
     }
+
+    console.error("Register failed", error);
 
     return serverError();
   }

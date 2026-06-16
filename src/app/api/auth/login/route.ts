@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { sanitizeUser } from "@/lib/auth";
 import { loginSchema } from "@/lib/user-schemas";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -37,6 +39,8 @@ export async function POST(request: Request) {
     if (error instanceof ZodError) {
       return badRequest("Payload login tidak valid", parseZodError(error));
     }
+
+    console.error("Login failed", error);
 
     return serverError();
   }

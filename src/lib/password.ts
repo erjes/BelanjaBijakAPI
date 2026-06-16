@@ -1,11 +1,13 @@
-const encoder = new TextEncoder();
+import { pbkdf2Sync, randomUUID, timingSafeEqual as nodeTimingSafeEqual } from "node:crypto";
+
 const iterations = 120000;
+const keyLength = 32;
+const digest = "sha256";
 
-export async function hashPassword(password: string, salt = crypto.randomUUID()) {
-  const key = await deriveKey(password, salt);
-  const hash = await crypto.subtle.exportKey("raw", key);
+export async function hashPassword(password: string, salt = randomUUID()) {
+  const hash = pbkdf2Sync(password, salt, iterations, keyLength, digest);
 
-  return `pbkdf2:${iterations}:${salt}:${base64UrlEncodeBytes(new Uint8Array(hash))}`;
+  return `pbkdf2:${iterations}:${salt}:${hash.toString("base64url")}`;
 }
 
 export async function verifyPassword(password: string, storedHash: string) {
@@ -20,51 +22,10 @@ export async function verifyPassword(password: string, storedHash: string) {
   return timingSafeEqual(actualHash, storedHash);
 }
 
-async function deriveKey(password: string, salt: string) {
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits", "deriveKey"],
-  );
-
-  return crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt: encoder.encode(salt),
-      iterations,
-      hash: "SHA-256",
-    },
-    baseKey,
-    {
-      name: "HMAC",
-      hash: "SHA-256",
-      length: 256,
-    },
-    true,
-    ["sign"],
-  );
-}
-
-function base64UrlEncodeBytes(bytes: Uint8Array) {
-  let binary = "";
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
 function timingSafeEqual(a: string, b: string) {
   if (a.length !== b.length) {
     return false;
   }
 
-  let result = 0;
-  for (let index = 0; index < a.length; index += 1) {
-    result |= a.charCodeAt(index) ^ b.charCodeAt(index);
-  }
-
-  return result === 0;
+  return nodeTimingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
