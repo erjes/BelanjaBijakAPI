@@ -10,7 +10,7 @@ API Next.js untuk aplikasi Android Belanja Bijak. Project ini memakai Next.js Ap
    npm install
    ```
 
-2. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL`.
+2. Salin `.env.example` menjadi `.env`, lalu isi `DATABASE_URL` dan `JWT_SECRET`.
 
 3. Jalankan migrasi database:
 
@@ -29,7 +29,7 @@ Base URL lokal: `http://localhost:3000`
 ## Deploy ke Vercel
 
 1. Buat database PostgreSQL, misalnya Vercel Postgres, Neon, Supabase, atau Railway.
-2. Tambahkan environment variable `DATABASE_URL` di Project Settings Vercel.
+2. Tambahkan environment variable `DATABASE_URL` dan `JWT_SECRET` di Project Settings Vercel.
 3. Deploy repository ini ke Vercel.
 4. Jalankan migrasi setelah deploy:
 
@@ -45,6 +45,37 @@ npm run build
 
 ## Endpoint
 
+## Autentikasi JWT
+
+Semua endpoint `/api/*` diproteksi JWT, kecuali:
+
+- `GET /api/health`
+- `POST /api/auth/token`
+
+Tambahkan environment variable di Vercel:
+
+```text
+Key: JWT_SECRET
+Value: isi_secretnya
+```
+
+Ambil token:
+
+```http
+POST /api/auth/token
+Content-Type: application/json
+
+{
+  "secret": "isi_secretnya"
+}
+```
+
+Gunakan token untuk endpoint lain:
+
+```http
+Authorization: Bearer TOKEN_DARI_RESPONSE
+```
+
 Semua response sukses memakai bentuk:
 
 ```json
@@ -56,6 +87,10 @@ Semua response sukses memakai bentuk:
 ### Health
 
 `GET /api/health`
+
+### Auth
+
+`POST /api/auth/token`
 
 ### Pengeluaran
 
