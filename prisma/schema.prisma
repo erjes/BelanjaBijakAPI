@@ -33,3 +33,30 @@ model KeranjangBelanja {
 
   @@map("keranjang_belanja")
 }
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  photoUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  posts        Post[]
+
+  @@map("users")
+}
+
+model Post {
+  id           Int      @id @default(autoincrement())
+  text         String
+  imageUrl     String?
+  imageDataUrl String?
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@map("posts")
+}
